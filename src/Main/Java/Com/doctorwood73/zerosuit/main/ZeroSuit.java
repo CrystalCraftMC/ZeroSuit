@@ -298,18 +298,14 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 					if(isInZeroG(e.getClickedBlock().getLocation(), zeroArea.get(i))) {
 						boolean isInList = false;
 						for(int ii = 0; ii < zs.size(); ii++) {
-							if(zs.get(ii).getName().equals(e.getPlayer().getName())) {
-								isInList = true;
-								zs.get(i).remove();
-								if(!hasFlyPerms(e.getPlayer()))
-									zs.get(ii).setAllowFlight(false);
-							}
+							if(zs.get(ii).equals(e.getPlayer().getName()))
+									isInList = true;
 						}
-						if(!isInList) {
+						if(!isInList)
 							zs.add(e.getPlayer());
-							e.getPlayer().setAllowFlight(true);
-							e.getPlayer().setFlying(true);
-						}
+						e.getPlayer().setAllowFlight(true);
+						e.getPlayer().setFlying(true);
+						return;
 					}
 			
 				}
@@ -538,13 +534,8 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	private class Update implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			for(int i = 0; i < zs.size(); i++) {
-				if(!zs.get(i).isOnline()) {
-					zs.get(i).setAllowFlight(false);
-					zs.get(i).setFlying(false);
-					zs.remove(i);
-					i--;
+				if(!zs.get(i).isOnline())
 					continue;
-				}
 				boolean isInZero = false;
 				for(int ii = 0; ii < zeroArea.size(); ii++) {
 					if(isInZeroG(zs.get(i).getLocation(), zeroArea.get(ii))) 
