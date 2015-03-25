@@ -7,44 +7,50 @@ website: http://crystalcraftmc.com
 
 commands:
    zerog:
-      description: This 0 argument command will list all areas that are zero-gravity regions
-      usage: /<command>
-      permission: ZeroSuit.areaset
+      description:
+         This 0 argument command will list all areas that are zero-gravity regions
+      usage:
+         /<command>
+      permission:
+         ZeroSuit.zerog
    zerog:
-      description: This 2 argument command will remove a specified zero-gravity region
-      usage: /<command><remove><nameID>
-      permission: ZeroSuit.areaset
+      description:
+         This 2 argument command will remove a specified zero-gravity region
+      usage:
+         /<command><remove><nameID>
+      permission:
+         ZeroSuit.zerog
    zerog:
-      description: This 8 argument command will create a zero-gravity region in the world you're in (overworld | nether | end) at the given coordinates
-      usage: /<command><add><x1><y1><z1><x2><y2><z2><nameID>
-      permission: ZeroSuit.areaset
-   zerogflyperms:
-      description: This 0 argument command will list everybody who has fly-permissions.  People in creative all have it by default.  Without fly permission, moving in a non-zero gravity area will disable your flying.
-      usage: /<command>
-      permission: ZeroSuit.flyperms
-   zerogflyperms:
-      description: This 2 argument case-sensitive command will add or remove people from the fly-permissions list
-      usage: /<command><_add | remove_><playerName>
-      permission: ZeroSuit.flyperms
+      description:
+         This 8 argument command will create a zero-gravity region in the world you're in (overworld | nether | end) at the given coordinates
+      usage:
+         /<command><add><x1><y1><z1><x2><y2><z2><nameID>
+      permission:
+         ZeroSuit.zerog
    zerogfast:
-      description: Changes your flying speed to 2
-      usage: /<command>
-      permission: ZeroSuit.speed
+      description:
+         Changes your flying speed to 2
+      usage:
+         /<command>
+      permission:
+         ZeroSuit.zerogfast
    zerogslow:
-      description: Changes your flying speed to 1
-      usage: /command>
-      permission: ZeroSuit.speed
+      description:
+         Changes your flying speed to 1
+      usage:
+         /command>
+      permission:
+         ZeroSuit.zerogslow
    zeroghelp:
-      description: Lists All ZeroSuit Commands
-      usage: /<command>
-      permission: ZeroSuit.help
-
-permissions:
+      description:
+         Lists All ZeroSuit Commands
+      usage:
+         /<command>
+      permission:
+         ZeroSuit.zeroghelp
+Permissions:
    ZeroSuit.zerog: 
       description:  Gives permission to create and remove 0 gravity areas
-      default: op
-   ZeroSuit.zerogflyperms:
-      description:  Gives permission to decide who has permission to fly in survival /zerogflyperms
       default: op
    ZeroSuit.zerogfast:
       description:  Allows use of /zerogfast command (keep same default as zerogslow)
