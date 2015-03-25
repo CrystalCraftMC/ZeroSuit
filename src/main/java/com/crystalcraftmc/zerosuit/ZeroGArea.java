@@ -20,10 +20,14 @@ import org.bukkit.ChatColor;
 
 import java.io.Serializable;
 
-/**This class holds objects of the locations of set areas
- * where there are zero g's*/
+/**
+ * This class holds objects of the locations of set areas
+ * where there are zero g's
+ *
+ * @author Alex Woodrow
+ */
 public class ZeroGArea implements Serializable {
-	/**Holds the 2 block locations from which everything inbetween
+	/**Holds the 2 block locations from which everything in between
 	 * will be labeled as a zero-g area*/
 	public int x1;
 	public int y1;
