@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * Main class:
  * This program will automatically enable fly-mode when someone enters an area
  *
- * @author Alex Woodrow
+ * @author Alex Woodward
  */
 public class ZeroSuit extends JavaPlugin implements Listener {
 	
