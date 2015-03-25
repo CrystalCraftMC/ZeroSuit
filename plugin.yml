@@ -1,7 +1,7 @@
 name: ZeroSuit
 main: com.doctorwood73.zerosuit.main.ZeroSuit
 version: 0.1
-authors: [Jwood9198]
+authors: [Jwood9198, Jacc734]
 commands:
    zerog:
       description:
@@ -24,20 +24,6 @@ commands:
          /<command><add><x1><y1><z1><x2><y2><z2><nameID>
       permission:
          ZeroSuit.areaset
-   zerogflyperms:
-      description:
-         This 0 argument command will list everybody who has fly-permissions.  People in creative all have it by default.  Without fly permission, moving in a non-zero gravity area will disable your flying.
-      usage:
-         /<command>
-      permission:
-         ZeroSuit.flyperms
-   zerogflyperms:
-      description:
-         This 2 argument case-sensitive command will add or remove people from the fly-permissions list
-      usage:
-         /<command><_add | remove_><playerName>
-      permission:
-         ZeroSuit.flyperms
    zerogfast:
       description:
          Changes your flying speed to 2
@@ -62,9 +48,6 @@ commands:
 Permissions:
    ZeroSuit.zerog: 
       description:  Gives permission to create and remove 0 gravity areas
-      default: op
-   ZeroSuit.zerogflyperms:
-      description:  Gives permission to decide who has permission to fly in survival /zerogflyperms
       default: op
    ZeroSuit.zerogfast:
       description:  Allows use of /zerogfast command (keep same default as zerogslow)
