@@ -448,8 +448,8 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 							i--;
 						}
 					}
-				}, 0L);
-			}
+				}
+			}, 0L);
 		}
 	}
 	
