@@ -1,4 +1,20 @@
-package com.crystalcraftmc.zerosuit.main;
+/*
+ * Copyright 2015 CrystalCraftMC
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package com.crystalcraftmc.zerosuit;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,6 +49,8 @@ import org.bukkit.util.Vector;
 
 /**Main class:
  * This program will automatically enable fly-mode when someone enters an area
+ * 
+ * @author Alex Woodward
  */
 public class ZeroSuit extends JavaPlugin implements Listener {
 	
@@ -51,10 +69,14 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	/**Update checks on people currently wearing zerosuits*/
 	private Timer tim;
 	
+	/**Holds this instance*/
+	ZeroSuit thisInstance;
+	
 	public void onEnable() {
 		this.initializeZeroGAreaFile();
 		this.initializePermsFile();
 		this.getServer().getPluginManager().registerEvents(this, this);
+		thisInstance = this;
 		tim = new Timer(500, new Update());
 		tim.start();
 	}
@@ -94,7 +116,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 								if(zeroArea.get(i).getID().equalsIgnoreCase(args[7])) {
 									p.sendMessage(ChatColor.RED + "Error; a zero-suit area with ID: " +
 											ChatColor.GOLD + args[7] + ChatColor.RED + " already " +
-											"exists.  Do /zerog to view all current zero-suit areas.");
+											"exists.  Do /zerogflyperms to view all current zero-suit areas.");
 									return true;
 								}
 							}
@@ -395,34 +417,38 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	
 	private class Update implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			for(int i = 0; i < zs.size(); i++) {
-				if(!zs.get(i).isOnline()) {
-					zs.get(i).setFlying(false);
-					zs.get(i).setAllowFlight(false);
-					zs.remove(zs.get(i));
-					i--;
-					continue;
-				}
-				boolean isInZero = false;
-				for(int ii = 0; ii < zeroArea.size(); ii++) {
-					if(isInZeroG(zs.get(i).getLocation(), zeroArea.get(ii))) 
-						isInZero = true;
-				}
-				if(!isInZero && !hasFlyPerms(zs.get(i))) {
-					zs.get(i).setAllowFlight(false);
-					zs.get(i).setFlying(false);
-					zs.remove(i);
-					i--;
-				}
-				else if(isInZero) {
-					zs.get(i).setAllowFlight(true);
-					zs.get(i).setFlying(true);
-				}
-				else if(hasFlyPerms(zs.get(i))) {
-					zs.get(i).setAllowFlight(true);
-					zs.remove(i);
-					i--;
-				}
+			thisInstance.getServer().getScheduler().scheduleSyncDelayedTask(thisInstance, new Runnable() {
+				public void run() {	
+					for(int i = 0; i < zs.size(); i++) {
+						if(!zs.get(i).isOnline()) {
+							zs.get(i).setFlying(false);
+							zs.get(i).setAllowFlight(false);
+							zs.remove(zs.get(i));
+							i--;
+							continue;
+						}
+						boolean isInZero = false;
+						for(int ii = 0; ii < zeroArea.size(); ii++) {
+							if(isInZeroG(zs.get(i).getLocation(), zeroArea.get(ii))) 
+								isInZero = true;
+						}
+						if(!isInZero && !hasFlyPerms(zs.get(i))) {
+							zs.get(i).setAllowFlight(false);
+							zs.get(i).setFlying(false);
+							zs.remove(i);
+							i--;
+						}
+						else if(isInZero) {
+							zs.get(i).setAllowFlight(true);
+							zs.get(i).setFlying(true);
+						}
+						else if(hasFlyPerms(zs.get(i))) {
+							zs.get(i).setAllowFlight(true);
+							zs.remove(i);
+							i--;
+						}
+					}
+				}, 0L);
 			}
 		}
 	}
