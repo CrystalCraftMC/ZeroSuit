@@ -103,7 +103,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 								if(zeroArea.get(i).getID().equalsIgnoreCase(args[7])) {
 									p.sendMessage(ChatColor.RED + "Error; a zero-suit area with ID: " +
 											ChatColor.GOLD + args[7] + ChatColor.RED + " already " +
-											"exists.  Do /zerogflyperms to view all current zero-suit areas.");
+											"exists.  Do /zerog to view all current zero-suit areas.");
 									return true;
 								}
 							}
