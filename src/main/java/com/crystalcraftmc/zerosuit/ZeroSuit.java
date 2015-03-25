@@ -72,96 +72,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
 		if(sender instanceof Player) {
 			Player p = (Player)sender;
-			if(p.hasPermission("ZeroSuit.zerogflyperms") && label.equalsIgnoreCase("zerogflyperms")) {
-				if(args.length == 0) {
-					if(flyPerms.size() == 0) {
-						p.sendMessage(ChatColor.BLUE + "Noone has fly permissions at this time.");
-						return true;
-					}
-					StringBuilder sb = new StringBuilder();
-					for(int i = 0; i < flyPerms.size(); i++) {
-						sb.append(flyPerms.get(i));
-						if(i != flyPerms.size()-1)
-							sb.append(", ");
-						else
-							sb.append(".");
-					}
-					p.sendMessage(ChatColor.LIGHT_PURPLE + "People with fly perms:");
-					p.sendMessage(ChatColor.AQUA + sb.toString());
-					p.sendMessage(ChatColor.GOLD + "Remember; /zerogflyperms <add | remove> <playername> " +
-							"to add/remove from the list.");
-					return true;
-				}
-				else if(args.length == 2) {
-					if(args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
-						boolean isAdding = args[0].equalsIgnoreCase("add") ? true : false;
-						if(isAdding) {
-							boolean isOnline = false;
-							for(Player pp : new ArrayList<Player>(this.getServer().getOnlinePlayers())) {
-								if(pp.getName().equals(args[1])) {
-									flyPerms.add(args[1]);
-									p.sendMessage(ChatColor.LIGHT_PURPLE + args[1] + " successfully added.");
-									pp.setAllowFlight(true);
-									isOnline = true;
-								}
-							}
-							if(!isOnline) {
-								p.sendMessage(ChatColor.RED + "Error; " + ChatColor.GOLD + args[1] +
-										ChatColor.RED + " is not online.");
-							}
-							return true;
-						}
-						else {
-							boolean isOnline = false;
-							boolean existsInList = false;
-							for(int i = 0; i < flyPerms.size(); i++) {
-								if(args[1].equalsIgnoreCase(flyPerms.get(i))) {
-									existsInList = true;
-								}
-							}
-							if(!existsInList) {
-								p.sendMessage(ChatColor.RED + "Error; " + ChatColor.GOLD + args[1] +
-										ChatColor.RED + " was not found in the file. Use /zerogflyperms to " +
-										"list all people with fly permissions.");
-								return true;
-							}
-							for(Player pp : new ArrayList<Player>(this.getServer().getOnlinePlayers())) {
-								if(pp.getName().equals(args[1])) {
-									flyPerms.remove(args[1]);
-									
-									if(pp.isFlying())
-										pp.setFlying(false);
-									pp.setAllowFlight(false);
-									isOnline = true;
-									return true;
-								}
-							}
-							if(!isOnline) {
-								p.sendMessage(ChatColor.RED + "Error; " + ChatColor.GOLD + args[1] +
-										ChatColor.RED + " is not online.");
-								return true;
-							}
-						}
-						this.updateFlyPermsFile();
-						String confirmationMsg = isAdding ? ChatColor.BLUE + "Player " + ChatColor.GOLD +
-								args[1] + ChatColor.BLUE + " Successfully Added To Fly-Perms List" :
-									ChatColor.BLUE + "Player " + ChatColor.GOLD +
-									args[1] + ChatColor.BLUE + " Successfully Removed From Fly-Perms List";
-						p.sendMessage(ChatColor.GREEN + "Note that the name given is case-sensitive.");
-						p.sendMessage(confirmationMsg);
-						p.sendMessage(ChatColor.GOLD + "Remember; /zerogflyperms with no args " +
-								"to view the whole list.");
-						return true;
-					}
-					p.sendMessage(ChatColor.RED + "Error; the first argument must read \'add\' or \'remove\'");
-					return false;
-				}
-			}
-			else if(!p.hasPermission("ZeroSuit.zerogflyperms") && label.equalsIgnoreCase("zerogflyperms")) {
-				p.sendMessage(ChatColor.RED + "You do not have permission to perform this command.");
-				return true;
-			}
-			else if(p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
+			if(p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
 				if(args.length == 8) {
 					if(args[0].equalsIgnoreCase("add")) {
 						boolean validArguments = true;
@@ -261,12 +172,6 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 				sb.append(ChatColor.LIGHT_PURPLE + "/zerog <add> <x1> <y1> <z1> <x2> <y2> <z2> <nameID>\n" +
 						ChatColor.AQUA + "This 8 argument command will create a zero-gravity region in the " +
 							"world you're in (overworld | nether | end) at the given coordinates\n");
-				sb.append(ChatColor.BLUE + "/zerogflyperms\n" + ChatColor.AQUA +
-						"This 0 argument command will list everybody who has fly-permissions.  People in creative all have it by " +
-						"default. " + ChatColor.RED +  "Without fly permission, moving in a non-zero gravity area " +
-						"will disable your flying.\n");
-				sb.append(ChatColor.BLUE + "/zerogflyperms <add | remove> <playerName>\n" + ChatColor.AQUA +
-						" This 2 argument case-sensitive command will add or remove people from the fly-permissions list\n");
 				sb.append(ChatColor.BLUE + "/zerogfast\n" + ChatColor.AQUA +
 						"Sets your flyspeed to fast\n");
 				sb.append(ChatColor.BLUE + "/zerogslow\n" + ChatColor.AQUA +
@@ -368,23 +273,22 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	}*/
 	
 	///**Will disable flying after a tp event*/
-	@EventHandler
-	public void noTpFly(PlayerTeleportEvent e) {
-		final Player p = e.getPlayer();
-		for(int i = 0; i < zeroArea.size(); i++) {
-			if(!this.isInZeroG(e.getTo(), zeroArea.get(i))) {
-				if(!this.hasFlyPerms(p)) {
-						this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-				 	public void run() {
-					        p.setAllowFlight(false);
-							p.setFlying(false);
-						}
-					}, 2L);
+		@EventHandler
+		public void noTpFly(PlayerTeleportEvent e) {
+			final Player p = e.getPlayer();
+			boolean gettoInZero = false;
+			for(int i = 0; i < zeroArea.size(); i++) {
+				if(!this.isInZeroG(e.getTo(), zeroArea.get(i))) {
+					gettoInZero = true;
 				}
-				return;
+			}
+			if(!gettoInZero) {
+				if(!hasFlyPerms(e.getPlayer())) {
+					p.setFlying(false);
+					p.setAllowFlight(false);
+				}
 			}
 		}
-	}
 	
 	/**This method checks whether a player is in a certain zeroArea region
 	 * @return boolean, true if they're in the zeroArea region
@@ -465,39 +369,12 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	/**Initializes & reads in the people who have permission*/
 	public void initializePermsFile() {
 		File file = new File("ZeroSuitFiles\\FlyPerms.ser");
-		if(!file.exists()) {
-			if(!new File("ZeroSuitFiles").exists())
-				new File("ZeroSuitFiles").mkdir();
-		}
-		else {
-			try{
-				FileInputStream fis = new FileInputStream(file);
-				ObjectInputStream ois = new ObjectInputStream(fis);
-				flyPerms = (ArrayList)ois.readObject();
-				ois.close();
-				fis.close();
-			}catch(IOException e) { e.printStackTrace(); 
-			}catch(ClassNotFoundException e) { e.printStackTrace(); }
-		}
+		if(file.exists())
+			file.delete();
+		if(!new File("ZeroSuitFiles").exists())
+			new File("ZeroSuitFiles").mkdir();
 	}
 	
-	/**Updates the permissions file*/
-	public void updateFlyPermsFile() {
-		File file = new File("ZeroSuitFiles\\FlyPerms.ser");
-		if(!file.exists()) {
-			if(!new File("ZeroSuitFiles").exists())
-				new File("ZeroSuitFiles").mkdir();
-		}
-		else
-			file.delete();
-		try{
-			FileOutputStream fos = new FileOutputStream(new File("ZeroSuitFiles\\FlyPerms.ser"));
-			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(flyPerms);
-			oos.close();
-			fos.close();
-		}catch(IOException e) { e.printStackTrace(); }
-	}
 	
 	/**Checks whether a player has permission to fly
 	 * @return boolean, true if the player has permission to fly
@@ -505,10 +382,6 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	public boolean hasFlyPerms(Player p) {
 		if(p.getGameMode() == GameMode.CREATIVE)
 			return true;
-		for(int i = 0; i < flyPerms.size(); i++) {
-			if(flyPerms.get(i).equals(p.getName()))
-				return true;
-		}
 		return false;
 	}
 	
@@ -522,28 +395,18 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		}catch(NumberFormatException e) { return false; }
 	}
 	
-	///**Let players know that fly doesn't work, and when this plugin
-	 //* is installed, it needs to be substituted by /zerogflyperms add playername
-	 //*/
-	/*@EventHandler 
-	public void flyEssentialsNoWork(PlayerCommandPreprocessEvent e) {
-		String msg = e.getMessage();
-		if(msg.length() > 4)
-			msg = msg.substring(0, 4);
-		if(msg.equalsIgnoreCase("/fly")) {
-			e.getPlayer().sendMessage(ChatColor.DARK_GRAY + "[" + ChatColor.LIGHT_PURPLE +
-					"ZeroSuit" + ChatColor.DARK_GRAY + "]:  " + ChatColor.BLUE +
-					"/fly will not work because you have ZeroSuit plugin installed.  Instead use " +
-					ChatColor.RED + "/zerogflyperms <_add | remove_> <playerName>" + ChatColor.BLUE +
-					" to give flying permission.");
-		}
-	}*/
+	
 	
 	private class Update implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			for(int i = 0; i < zs.size(); i++) {
-				if(!zs.get(i).isOnline())
+				if(!zs.get(i).isOnline()) {
+					zs.get(i).setFlying(false);
+					zs.get(i).setAllowFlight(false);
+					zs.remove(i);
+					i--;
 					continue;
+				}
 				boolean isInZero = false;
 				for(int ii = 0; ii < zeroArea.size(); ii++) {
 					if(isInZeroG(zs.get(i).getLocation(), zeroArea.get(ii))) 
