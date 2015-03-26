@@ -86,7 +86,17 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
 		if(sender instanceof Player) {
 			Player p = (Player)sender;
-			if(p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
+			if(label.equalsIgnoreCase("zerogfast")) {
+				p.setFlySpeed((float).2);
+				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "fast");
+				return true;
+			}
+			else if(label.equalsIgnoreCase("zerogslow")) {
+				p.setFlySpeed((float).1);
+				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "slow");
+				return true;
+			}
+			else if(p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
 				if(args.length == 8) {
 					if(args[0].equalsIgnoreCase("add")) {
 						boolean validArguments = true;
@@ -199,16 +209,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 				p.sendMessage(ChatColor.RED + "Error; you do not have permission for this command.");
 				return true;
 			}
-			else if(label.equalsIgnoreCase("zerogfast")) {
-				p.setFlySpeed((float).2);
-				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "fast");
-				return true;
-			}
-			else if(label.equalsIgnoreCase("zerogslow")) {
-				p.setFlySpeed((float).1);
-				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "slow");
-				return true;
-			}
+			
 			return false;
 		}
 		else
