@@ -44,6 +44,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -232,6 +233,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 						}
 						if(!isInList)
 							zs.add(e.getPlayer());
+							e.getPlayer().setVelocity(new Vector(0, 1, 0));
 							e.getPlayer().setAllowFlight(true);
 							e.getPlayer().setFlying(true);
 							e.getPlayer().sendMessage(ChatColor.DARK_RED + "Now Entering " +
@@ -451,6 +453,20 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 				}
 			}, 0L);
 		}
+	}
+	
+	@EventHandler
+	public void noFlyLog(PlayerLoginEvent e) {
+		final Player p = e.getPlayer();
+		this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+			public void run() {
+				boolean disable = !hasFlyPerms(p);
+				if(disable) {
+					p.setFlying(false);
+					p.setAllowFlight(false);
+				}
+			}
+		}, 5L);
 	}
 	
 }
