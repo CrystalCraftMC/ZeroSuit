@@ -32,15 +32,11 @@ commands:
          Changes your flying speed to 2
       usage:
          /<command>
-      permission:
-         ZeroSuit.zerogfast
    zerogslow:
       description:
          Changes your flying speed to 1
       usage:
          /command>
-      permission:
-         ZeroSuit.zerogslow
    zeroghelp:
       description:
          Lists All ZeroSuit Commands
@@ -52,12 +48,6 @@ Permissions:
    ZeroSuit.zerog: 
       description:  Gives permission to create and remove 0 gravity areas
       default: op
-   ZeroSuit.zerogfast:
-      description:  Allows use of /zerogfast command (keep same default as zerogslow)
-      default: true
-   ZeroSuit.zerogslow:
-      description:  Allows use of /zerogslow command (keep same default as zerogfast)
-      default: true
    ZeroSuit.zeroghelp:
       description:  Allows use of /zeroghelp command
       default: true
