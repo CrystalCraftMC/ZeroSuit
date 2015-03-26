@@ -75,7 +75,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		this.initializePermsFile();
 		this.getServer().getPluginManager().registerEvents(this, this);
 		thisInstance = this;
-		tim = new Timer(500, new Update());
+		tim = new Timer(250, new Update());
 		tim.start();
 	}
 	public void onDisable() {
@@ -228,14 +228,20 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 							if(zs.get(ii).equals(e.getPlayer().getName()))
 									isInList = true;
 						}
-						if(!isInList)
+						if(!isInList) {
 							zs.add(e.getPlayer());
 							e.getPlayer().setVelocity(new Vector(0, 1, 0));
-							e.getPlayer().setAllowFlight(true);
-							e.getPlayer().setFlying(true);
-							e.getPlayer().sendMessage(ChatColor.DARK_RED + "Now Entering " +
-								ChatColor.AQUA + "Zero-Gravity");
+							final Player pp = e.getPlayer();
+							this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+								public void run() {
+									pp.setAllowFlight(true);
+									pp.setFlying(true);
+									pp.sendMessage(ChatColor.DARK_RED + "Now Entering " +
+										ChatColor.AQUA + "Zero-Gravity");
+								}
+							}, 8L);
 							return;
+						}
 					}
 			
 				}
