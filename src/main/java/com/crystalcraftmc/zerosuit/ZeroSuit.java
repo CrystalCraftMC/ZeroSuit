@@ -230,17 +230,18 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 									isInList = true;
 						}
 						if(!isInList) {
-							zs.add(e.getPlayer());
-							e.getPlayer().setVelocity(new Vector(0, 1, 0));
+							
+							e.getPlayer().setVelocity(new Vector(0, 1.4, 0));
 							final Player pp = e.getPlayer();
 							this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 								public void run() {
 									pp.setAllowFlight(true);
 									pp.setFlying(true);
+									zs.add(pp);
 									pp.sendMessage(ChatColor.DARK_RED + "Now Entering " +
-										ChatColor.AQUA + "Zero-Gravity");
+										ChatColor.AQUA + "Zero-Gravity!");
 								}
-							}, 8L);
+							}, 15L);
 							return;
 						}
 					}
@@ -404,7 +405,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	 * @return boolean, true if the player has permission to fly
 	 */
 	public boolean hasFlyPerms(Player p) {
-		if(p.getGameMode() == GameMode.CREATIVE)
+		if(p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR)
 			return true;
 		return false;
 	}
@@ -445,8 +446,12 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 							i--;
 						}
 						else if(isInZero) {
-							zs.get(i).setAllowFlight(true);
-							zs.get(i).setFlying(true);
+							if(!zs.get(i).isOnGround()) {
+								zs.get(i).setAllowFlight(true);
+								zs.get(i).setFlying(true);
+							}
+							else
+								zs.get(i).setFlying(false);
 						}
 						else if(hasFlyPerms(zs.get(i))) {
 							zs.get(i).setAllowFlight(true);
