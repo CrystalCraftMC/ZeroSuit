@@ -50,4 +50,4 @@ Permissions:
       default: op
    ZeroSuit.zeroghelp:
       description:  Allows use of /zeroghelp command
-      default: true
+      default: op
