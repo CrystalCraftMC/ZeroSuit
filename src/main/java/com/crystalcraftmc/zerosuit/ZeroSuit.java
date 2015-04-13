@@ -81,6 +81,14 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	public void onDisable() {
 		msgCap.clear();
 		tim.stop();
+		for(Player p : zs) {
+			if(!hasFlyPerms(p)) {
+				if(p.isFlying())
+					p.setFlying(false);
+				p.setAllowFlight(false);
+			}
+		}
+		zs.clear();
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String args[]) {
@@ -405,7 +413,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	 * @return boolean, true if the player has permission to fly
 	 */
 	public boolean hasFlyPerms(Player p) {
-		if(p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR)
+		if(p.getGameMode() == GameMode.CREATIVE)
 			return true;
 		return false;
 	}
