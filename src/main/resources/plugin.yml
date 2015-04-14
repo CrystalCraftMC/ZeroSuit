@@ -2,49 +2,34 @@ name: ZeroSuit
 main: com.crystalcraftmc.zerosuit.ZeroSuit
 version: 0.1.1c
 description: Who needed gravity anyways?
-authors: [Jwood9198]
+author: Jwood9198
 website: http://crystalcraftmc.com
 
 commands:
    zerog:
-      description:
-         This 0 argument command will list all areas that are zero-gravity regions
-      usage:
-         /<command>
-      permission:
-         ZeroSuit.zerog
+      description: This 0 argument command will list all areas that are zero-gravity regions
+      usage: /<command>
+      permission: ZeroSuit.zerog
    zerog:
-      description:
-         This 2 argument command will remove a specified zero-gravity region
-      usage:
-         /<command><remove><nameID>
-      permission:
-         ZeroSuit.zerog
+      description: This 2 argument command will remove a specified zero-gravity region
+      usage: /<command><remove><nameID>
+      permission: ZeroSuit.zerog
    zerog:
-      description:
-         This 8 argument command will create a zero-gravity region in the world you're in (overworld | nether | end) at the given coordinates
-      usage:
-         /<command><add><x1><y1><z1><x2><y2><z2><nameID>
-      permission:
-         ZeroSuit.zerog
+      description: This 8 argument command will create a zero-gravity region in the world you're in (overworld | nether | end) at the given coordinates
+      usage: /<command><add><x1><y1><z1><x2><y2><z2><nameID>
+      permission: ZeroSuit.zerog
    zerogfast:
-      description:
-         Changes your flying speed to 2
-      usage:
-         /<command>
+      description: Changes your flying speed to 2
+      usage: /<command>
    zerogslow:
-      description:
-         Changes your flying speed to 1
-      usage:
-         /command>
+      description: Changes your flying speed to 1
+      usage: /command>
    zeroghelp:
-      description:
-         Lists All ZeroSuit Commands
-      usage:
-         /<command>
-      permission:
-         ZeroSuit.zeroghelp
-Permissions:
+      description: Lists All ZeroSuit Commands
+      usage: /<command>
+      permission: ZeroSuit.zeroghelp
+
+permissions:
    ZeroSuit.zerog: 
       description:  Gives permission to create and remove 0 gravity areas
       default: op
