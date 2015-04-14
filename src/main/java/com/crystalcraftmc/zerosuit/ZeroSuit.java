@@ -16,18 +16,6 @@
 
 package com.crystalcraftmc.zerosuit;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-
-import javax.swing.Timer;
-
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -40,10 +28,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
 
 /**Main class:
  * This program will automatically enable fly-mode when someone enters an area
@@ -310,17 +304,11 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		public void noTpFly(PlayerTeleportEvent e) {
 			final Player p = e.getPlayer();
 			boolean gettoInZero = false;
-			for(int i = 0; i < zeroArea.size(); i++) {
-				if(!this.isInZeroG(e.getTo(), zeroArea.get(i))) {
-					gettoInZero = true;
-				}
-			}
-			if(!gettoInZero) {
-				if(!hasFlyPerms(e.getPlayer())) {
-					p.setFlying(false);
-					p.setAllowFlight(false);
-				}
-			}
+            for (ZeroGArea aZeroArea : zeroArea) if (!this.isInZeroG(e.getTo(), aZeroArea)) gettoInZero = true;
+            if (!gettoInZero && !hasFlyPerms(e.getPlayer())) {
+                p.setFlying(false);
+                p.setAllowFlight(false);
+            }
 		}
 	
 	/**This method checks whether a player is in a certain zeroArea region
@@ -341,25 +329,24 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		}
 		boolean isInX, isInY, isInZ;
 		if(zga.x1 < zga.x2) {
-			isInX = loc.getX() < zga.x2 && loc.getX() > zga.x1 ? true : false;
+			isInX = loc.getX() < zga.x2 && loc.getX() > zga.x1;
 		}
 		else {
-			isInX = loc.getX() > zga.x2 && loc.getX() < zga.x1 ? true : false;
+			isInX = loc.getX() > zga.x2 && loc.getX() < zga.x1;
 		}
 		if(zga.y1 < zga.y2) {
-			isInY = loc.getY() < zga.y2 && loc.getY() > zga.y1 ? true : false;
+			isInY = loc.getY() < zga.y2 && loc.getY() > zga.y1;
 		}
 		else {
-			isInY = loc.getY() > zga.y2 && loc.getY() < zga.y1 ? true : false;
+			isInY = loc.getY() > zga.y2 && loc.getY() < zga.y1;
 		}
 		if(zga.z1 < zga.z2) {
-			isInZ = loc.getZ() < zga.z2 && loc.getZ() > zga.z1 ? true : false;
+			isInZ = loc.getZ() < zga.z2 && loc.getZ() > zga.z1;
 		}
 		else {
-			isInZ = loc.getZ() > zga.z2 && loc.getZ() < zga.z1 ? true : false;
+			isInZ = loc.getZ() > zga.z2 && loc.getZ() < zga.z1;
 		}
-		boolean isInsideZeroG = isInZ && isInY && isInX;
-		return isInsideZeroG;
+        return isInZ && isInY && isInX;
 	}
 	
 	/**This will initialize & read in data from the zerogarea .ser file*/
@@ -373,7 +360,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 			try{
 				FileInputStream fis = new FileInputStream(file);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				zeroArea = (ArrayList)ois.readObject();
+				zeroArea = (ArrayList) ois.readObject();
 				ois.close();
 				fis.close();
 			}catch(IOException e) { e.printStackTrace(); 
