@@ -16,6 +16,20 @@
 
 package com.crystalcraftmc.zerosuit;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.swing.Timer;
+
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -28,16 +42,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.ArrayList;
 
 /**Main class:
  * This program will automatically enable fly-mode when someone enters an area
@@ -64,9 +72,18 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 	/**Holds this instance*/
 	ZeroSuit thisInstance;
 	
+	/**Holds velocity player gets shot up after pressing button*/
+	private double upVelocity = .9;
+	
+	/**Holds fly speed for zerogfast*/
+	private double zerogFastVelocity = .2;
+	
+	/**Holds fly speed for zerogslow*/
+	private double zerogSlowVelocity = .1;
+	
 	public void onEnable() {
 		this.initializeZeroGAreaFile();
-		this.initializePermsFile();
+		this.initializeZeroGConfigFile();
 		this.getServer().getPluginManager().registerEvents(this, this);
 		thisInstance = this;
 		tim = new Timer(250, new Update());
@@ -89,16 +106,16 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		if(sender instanceof Player) {
 			Player p = (Player)sender;
 			if(label.equalsIgnoreCase("zerogfast")) {
-				p.setFlySpeed((float).2);
+				p.setFlySpeed((float)zerogFastVelocity);
 				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "fast");
 				return true;
 			}
 			else if(label.equalsIgnoreCase("zerogslow")) {
-				p.setFlySpeed((float).1);
+				p.setFlySpeed((float)zerogSlowVelocity);
 				p.sendMessage(ChatColor.DARK_PURPLE + "Fly Speed Set To " + ChatColor.RED + "slow");
 				return true;
 			}
-			else if(p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
+			else if(p.isOp() && label.equalsIgnoreCase("zerog")) {
 				if(args.length == 8) {
 					if(args[0].equalsIgnoreCase("add")) {
 						boolean validArguments = true;
@@ -184,11 +201,45 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 					return false;
 				}
 			}
-			else if(!p.hasPermission("ZeroSuit.zerog") && label.equalsIgnoreCase("zerog")) {
+			else if(p.isOp() && label.equalsIgnoreCase("zerogedit")) {
+				if(args.length == 2) {
+					ConfigType ct = null;
+					if(args[0].equalsIgnoreCase("zerogslow"))
+						ct = ConfigType.ZEROGSLOW;
+					else if(args[0].equalsIgnoreCase("zerogfast"))
+						ct = ConfigType.ZEROGFAST;
+					else if(args[0].equalsIgnoreCase("upvelocity"))
+						ct = ConfigType.UPVELOCITY;
+					
+					if(ct == null) {
+						return false;
+					}
+					boolean isDouble;
+					try{
+						Double.parseDouble(args[1]);
+						isDouble = true;
+					}catch(NumberFormatException e) { isDouble = false; }
+					if(!isDouble) {
+						p.sendMessage(ChatColor.RED + "Error; the 2nd argument was not a double.");
+						return false;
+					}
+					this.updateZeroGConfigFile(ct, Double.parseDouble(args[1]));
+					p.sendMessage(ChatColor.DARK_AQUA + "Value updated.");
+					return true;
+				}
+				else
+					return false;
+			}
+			else if(!p.isOp() && label.equalsIgnoreCase("zerogedit")) {
+				p.sendMessage(ChatColor.RED + "Error; you do not have permission " +
+						"to perform this command.");
+				return true;
+			}
+			else if(!p.isOp() && label.equalsIgnoreCase("zerog")) {
 				p.sendMessage(ChatColor.RED + "You do not have permission to perform this command.");
 				return true;
 			}
-			else if(p.hasPermission("ZeroSuit.zeroghelp") && label.equalsIgnoreCase("zeroghelp")) {
+			else if(label.equalsIgnoreCase("zeroghelp")) {
 				StringBuilder sb = new StringBuilder();
 				sb.append(ChatColor.LIGHT_PURPLE + "/zerog\n");
 				sb.append(ChatColor.AQUA + "This 0 argument command will list all areas that " +
@@ -202,13 +253,12 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 						"Sets your flyspeed to fast\n");
 				sb.append(ChatColor.BLUE + "/zerogslow\n" + ChatColor.AQUA +
 						"Sets your flyspeed to slow\n");
+				sb.append(ChatColor.DARK_AQUA + "/zerogedit <_zerogfast_ | _zerogslow_ | _upvelocity_> <decimal or integer value>\n" + ChatColor.DARK_AQUA +
+						"Edit either the zerogfast speed, zerogslow speed, or upward velocity on button-press\n" +
+						"zerogslow default: .1, zerogfast default: .2, upvelocity default: .8\n");
 				sb.append(ChatColor.GREEN + "/zeroghelp\n" + ChatColor.AQUA +
-						"Lists All ZeroSuit Commands");
+						"Lists All ZeroSuit Commands, and zerogedit default values");
 				p.sendMessage(sb.toString());
-				return true;
-			}
-			else if(!p.hasPermission("ZeroSuit.zeroghelp") && label.equalsIgnoreCase("zeroghelp")) {
-				p.sendMessage(ChatColor.RED + "Error; you do not have permission for this command.");
 				return true;
 			}
 			
@@ -233,7 +283,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 						}
 						if(!isInList) {
 							
-							e.getPlayer().setVelocity(new Vector(0, 1.4, 0));
+							e.getPlayer().setVelocity(new Vector(0, upVelocity, 0));
 							final Player pp = e.getPlayer();
 							this.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 								public void run() {
@@ -243,7 +293,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 									pp.sendMessage(ChatColor.DARK_RED + "Now Entering " +
 										ChatColor.AQUA + "Zero-Gravity!");
 								}
-							}, 15L);
+							}, 10L);
 							return;
 						}
 					}
@@ -304,11 +354,17 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		public void noTpFly(PlayerTeleportEvent e) {
 			final Player p = e.getPlayer();
 			boolean gettoInZero = false;
-            for (ZeroGArea aZeroArea : zeroArea) if (!this.isInZeroG(e.getTo(), aZeroArea)) gettoInZero = true;
-            if (!gettoInZero && !hasFlyPerms(e.getPlayer())) {
-                p.setFlying(false);
-                p.setAllowFlight(false);
-            }
+			for(int i = 0; i < zeroArea.size(); i++) {
+				if(!this.isInZeroG(e.getTo(), zeroArea.get(i))) {
+					gettoInZero = true;
+				}
+			}
+			if(!gettoInZero) {
+				if(!hasFlyPerms(e.getPlayer())) {
+					p.setFlying(false);
+					p.setAllowFlight(false);
+				}
+			}
 		}
 	
 	/**This method checks whether a player is in a certain zeroArea region
@@ -329,24 +385,25 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		}
 		boolean isInX, isInY, isInZ;
 		if(zga.x1 < zga.x2) {
-			isInX = loc.getX() < zga.x2 && loc.getX() > zga.x1;
+			isInX = loc.getX() < zga.x2 && loc.getX() > zga.x1 ? true : false;
 		}
 		else {
-			isInX = loc.getX() > zga.x2 && loc.getX() < zga.x1;
+			isInX = loc.getX() > zga.x2 && loc.getX() < zga.x1 ? true : false;
 		}
 		if(zga.y1 < zga.y2) {
-			isInY = loc.getY() < zga.y2 && loc.getY() > zga.y1;
+			isInY = loc.getY() < zga.y2 && loc.getY() > zga.y1 ? true : false;
 		}
 		else {
-			isInY = loc.getY() > zga.y2 && loc.getY() < zga.y1;
+			isInY = loc.getY() > zga.y2 && loc.getY() < zga.y1 ? true : false;
 		}
 		if(zga.z1 < zga.z2) {
-			isInZ = loc.getZ() < zga.z2 && loc.getZ() > zga.z1;
+			isInZ = loc.getZ() < zga.z2 && loc.getZ() > zga.z1 ? true : false;
 		}
 		else {
-			isInZ = loc.getZ() > zga.z2 && loc.getZ() < zga.z1;
+			isInZ = loc.getZ() > zga.z2 && loc.getZ() < zga.z1 ? true : false;
 		}
-        return isInZ && isInY && isInX;
+		boolean isInsideZeroG = isInZ && isInY && isInX;
+		return isInsideZeroG;
 	}
 	
 	/**This will initialize & read in data from the zerogarea .ser file*/
@@ -360,7 +417,7 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 			try{
 				FileInputStream fis = new FileInputStream(file);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				zeroArea = (ArrayList) ois.readObject();
+				zeroArea = (ArrayList)ois.readObject();
 				ois.close();
 				fis.close();
 			}catch(IOException e) { e.printStackTrace(); 
@@ -386,15 +443,73 @@ public class ZeroSuit extends JavaPlugin implements Listener {
 		}catch(IOException e) { e.printStackTrace(); }
 	}
 	
-	/**Initializes & reads in the people who have permission*/
-	public void initializePermsFile() {
-		File file = new File("ZeroSuitFiles\\FlyPerms.ser");
-		if(file.exists())
-			file.delete();
+	/**Initializes the Zero-Gravity config file*/
+	public void initializeZeroGConfigFile() {
 		if(!new File("ZeroSuitFiles").exists())
 			new File("ZeroSuitFiles").mkdir();
+		File file = new File("ZeroSuitFiles\\ZeroSuitConfig.txt");
+		if(file.exists()) {
+			Scanner in = null;
+			try{
+				String slowData = "", fastData = "", upData = "";
+				in = new Scanner(file);
+				slowData = in.nextLine();
+				slowData = slowData.substring(slowData.indexOf("<")+1,
+						slowData.indexOf(">")).trim();
+				fastData = in.nextLine();
+				fastData = fastData.substring(fastData.indexOf("<")+1,
+						fastData.indexOf(">")).trim();
+				upData = in.nextLine();
+				upData = upData.substring(upData.indexOf("<")+1,
+						upData.indexOf(">")).trim();
+				
+				zerogSlowVelocity = Double.parseDouble(slowData);
+				zerogFastVelocity = Double.parseDouble(fastData);
+				upVelocity = Double.parseDouble(upData);
+			}catch(IOException e) { e.printStackTrace();
+			}catch(NumberFormatException e) { e.printStackTrace();
+			}finally {
+				if(in != null)
+					in.close();
+			}
+		}
 	}
 	
+	public enum ConfigType { ZEROGFAST, ZEROGSLOW, UPVELOCITY }
+	
+	/**Updates the Zero-Gravity config file*/
+	public void updateZeroGConfigFile(ConfigType ct, double value) {
+		switch(ct) {
+		case ZEROGFAST:
+			zerogFastVelocity = value;
+			break;
+		case ZEROGSLOW:
+			zerogSlowVelocity = value;
+			break;
+		case UPVELOCITY:
+			upVelocity = value;
+			break;
+		}
+		
+		if(!new File("ZeroSuitFiles").exists())
+			new File("ZeroSuitFiles").mkdir();
+		File file = new File("ZeroSuitFiles\\ZeroSuitConfig.txt");
+		PrintWriter pw = null;
+		try{
+			pw = new PrintWriter(file);
+			pw.println("ZerogSlow value: <" + String.valueOf(zerogSlowVelocity) + ">");
+			pw.flush();
+			pw.println("ZerogFast value: <" + String.valueOf(zerogFastVelocity) + ">");
+			pw.flush();
+			pw.println("UpVelocity value: <" + String.valueOf(upVelocity) + ">");
+			pw.flush();
+			
+		}catch(IOException e) { e.printStackTrace();
+		}finally {
+			if(pw != null)
+				pw.close();
+		}
+	}
 	
 	/**Checks whether a player has permission to fly
 	 * @return boolean, true if the player has permission to fly
